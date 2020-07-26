@@ -24,7 +24,8 @@ export class House{
     loader.load('http://cdn.dodream.top/LittlestTokyo.glb?key=joelee',  (gltf)=> {
       var model = gltf.scene;
       model.castShadow=true;
-      model.position.set(1, 2, 0);
+      model.position.set(1,0, 2);
+      model.rotation.x=Math.PI/2;
       model.scale.set(0.01, 0.01, 0.01);
       model.traverse(function (child) {
   
@@ -34,7 +35,7 @@ export class House{
   
       view.scene.add(model);
       let m2=model.clone()
-      m2.position.set(8, 2, 0);
+      m2.position.set(1, 8, 2);
       view.scene.add(m2);
       
       view.initmixer(model);

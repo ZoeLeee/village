@@ -1,5 +1,4 @@
 import { Viewer } from "./view/view";
-import { House } from "./editor/House";
 
 export  let app;
 
@@ -19,11 +18,6 @@ export class Application {
   init() {
     const container=document.getElementById('canvas');
     this.viewer = new Viewer(container);
-    this.initScene();
-  }
-  initScene(){
-    const house=new House(this.viewer);
-    house.init()
   }
 }
 

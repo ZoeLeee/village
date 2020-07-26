@@ -6,7 +6,7 @@ export class Camera {
   }
   init() {
     let camera = new PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 100000);
-    camera.position.set(5, 2, 8);
+    camera.position.set(0,0,300);
     this.intance=camera;
   }
 }
