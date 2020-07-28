@@ -1,15 +1,12 @@
-import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer } from "three";
+import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer, Vector3 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls';
-import { House } from "../editor/House.js";
+import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, ROAD_WIDTH } from "../editor/enums";
+import { HouseModel, House } from "../editor/House.js";
 import { RoadFactroy } from "../editor/road.js";
+import { Bridge } from './../editor/bridge';
 import { Car } from './../objects/car';
 import { Camera } from "./camera.js";
-
-export const PLANE_HEIGHT = 200;
-export const PLANE_WIDTH = 100;
-export const ROAD_WIDTH = 8;
-export const RIVER_WIDTH=20;
 
 var clock = new Clock();
 
@@ -27,8 +24,11 @@ export class Viewer {
     this.initHelper();
     this.initPlane();
     this.initLight();
-    // this.initObjects();
+    this.initObjects();
     this.initRoad();
+    this.initBridge();
+    this.initHouses()
+
     this.stats = new Stats();
     this.container.appendChild(this.stats.dom);
 
@@ -111,23 +111,23 @@ export class Viewer {
     car.init(this.scene);
     this.car = car;
 
-    const house = new House(this);
+    const house = new HouseModel(this);
     house.init()
 
   }
   initRoad() {
     const ptss = [
-      [new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH, -PLANE_HEIGHT / 2), new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH, PLANE_HEIGHT / 2)],
-      [new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH, 0), new Vector2(0, 0), 2],
-      [new Vector2(PLANE_WIDTH / 4, PLANE_HEIGHT / 4), new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4), 2],
-      [new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4+2), new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 4+2), 2],
+      [new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH+4, -PLANE_HEIGHT / 2), new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH+4, PLANE_HEIGHT / 2)],
+      [new Vector2(PLANE_WIDTH / 2, 0), new Vector2(0, 0), 2],
+      [new Vector2(PLANE_WIDTH / 4, PLANE_HEIGHT / 4+5), new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4), ROAD_WIDTH/2], //终点学校
+      [new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4+2), new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 4+2), ROAD_WIDTH/2],
       [ new Vector2(0, PLANE_HEIGHT / 2), new Vector2(0, -PLANE_HEIGHT / 2), 2],
-      [ new Vector2(-PLANE_WIDTH / 2, PLANE_HEIGHT / 2-2), new Vector2(PLANE_WIDTH / 2+RIVER_WIDTH, PLANE_HEIGHT / 2-2), 2],
-      [ new Vector2(0, -PLANE_HEIGHT / 2+10), new Vector2(-PLANE_WIDTH / 2+5,-PLANE_HEIGHT / 2+10), 2],
-      [ new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 2+8), new Vector2(-PLANE_WIDTH / 2+5,PLANE_HEIGHT / 2), 2],
-      [ new Vector2(-PLANE_WIDTH / 4, -PLANE_HEIGHT / 2), new Vector2(-PLANE_WIDTH / 4,-PLANE_HEIGHT / 4), 2],
-      [ new Vector2(PLANE_WIDTH / 2-2, -PLANE_HEIGHT / 4), new Vector2(PLANE_WIDTH / 2-2,3*PLANE_HEIGHT / 8), 2],
-      [ new Vector2(PLANE_WIDTH / 2-2, PLANE_HEIGHT / 4), new Vector2(-PLANE_WIDTH/4,PLANE_HEIGHT / 4), 2],
+      [ new Vector2(-PLANE_WIDTH / 2, PLANE_HEIGHT / 2-2), new Vector2(PLANE_WIDTH / 2+RIVER_WIDTH, PLANE_HEIGHT / 2-2), ROAD_WIDTH/2],
+      [ new Vector2(0, -PLANE_HEIGHT / 2+10), new Vector2(-PLANE_WIDTH / 2+5,-PLANE_HEIGHT / 2+10), ROAD_WIDTH/2],
+      [ new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 2+8), new Vector2(-PLANE_WIDTH / 2+5,PLANE_HEIGHT / 2), ROAD_WIDTH/2],
+      [ new Vector2(-PLANE_WIDTH / 4, -PLANE_HEIGHT / 2), new Vector2(-PLANE_WIDTH / 4,-PLANE_HEIGHT / 4), ROAD_WIDTH/2],
+      [ new Vector2(PLANE_WIDTH / 2-2, -PLANE_HEIGHT / 4), new Vector2(PLANE_WIDTH / 2-2,3*PLANE_HEIGHT / 8), ROAD_WIDTH/2],
+      [ new Vector2(PLANE_WIDTH / 2-2, PLANE_HEIGHT / 4), new Vector2(-PLANE_WIDTH/4,PLANE_HEIGHT / 4), ROAD_WIDTH/2],
     ]
 
     for (let pts of ptss) {
@@ -137,7 +137,16 @@ export class Viewer {
     }
   }
   initHouses(){
+    let myHouse=new House(new Vector3(3,3,6));
+    const intance=myHouse.intance;
+    intance.position.set(-PLANE_WIDTH / 2+9,-PLANE_HEIGHT / 4-20,4/2+0.1)
 
+    this.scene.add(intance);
+  }
+  initBridge(){
+    let bridge=new Bridge();
+    bridge.intance.position.set(PLANE_WIDTH/2,2,0.1)
+    this.scene.add(bridge.intance);
   }
   render() {
     requestAnimationFrame(() => this.render());

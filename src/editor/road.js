@@ -2,6 +2,7 @@ import { extrudePolygon } from 'geometry-extrude';
 import * as THREE from 'three';
 import { Vector2, Shape, Mesh, ShapeBufferGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
+import { ROAD_WIDTH } from './enums';
 
 export function getRoadGeo(squareWithHole) {
   console.log('squareWithHole: ', squareWithHole);
@@ -21,7 +22,7 @@ const ROAD_MATIAL=new MeshBasicMaterial({color:0x66676B});
 
 class Road{
   constructor(sp,ep,width){
-    this._width=width||4;
+    this._width=width||ROAD_WIDTH;
     this.startPoint=sp;
     this.endPoint=ep;
     this.init();

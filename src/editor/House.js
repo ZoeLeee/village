@@ -1,8 +1,9 @@
 import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
-import { CubeTextureLoader } from 'three';
+import { CubeTextureLoader, BoxGeometry, Mesh, TextureLoader } from 'three';
 import { DRACOLoader } from '../../node_modules/three/examples/jsm/loaders/DRACOLoader.js';
+import { MeshBasicMaterial } from 'three';
 
-export class House{
+export class HouseModel{
   constructor(viewer){
     this.viewer=viewer
   }
@@ -56,5 +57,21 @@ export class House{
   }
   get Model(){
     return this.model.clone();
+  }
+}
+
+
+export class House{
+  constructor(size){
+    this.size=size;
+    this.init();
+  }
+  init(){
+    let boxGeo=new BoxGeometry(this.size.x,this.size.y,this.size.z);
+    var texture = new TextureLoader().load( 'http://cdn2.dodream.top/outwall.jpg?key=joelee' );
+    var material = new MeshBasicMaterial( { map: texture } );
+    let mesh=new Mesh(boxGeo,material);
+
+    this.intance=mesh;
   }
 }
