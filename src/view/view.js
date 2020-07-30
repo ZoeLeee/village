@@ -1,11 +1,11 @@
-import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer, Vector3 } from "three";
+import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls';
-import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, ROAD_WIDTH } from "../editor/enums";
-import { HouseModel, House } from "../editor/House.js";
-import { RoadFactroy } from "../editor/road.js";
+import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, ROAD_WIDTH, StairwayHeihgt } from "../editor/enums";
+import { RoadFactroy, ROAD_MATIAL } from "../editor/road.js";
 import { Bridge } from './../editor/bridge';
-import { Car } from './../objects/car';
+import { WRLHouse } from './../editor/House';
+import { Stairway } from './../editor/stairway';
 import { Camera } from "./camera.js";
 
 var clock = new Clock();
@@ -13,6 +13,7 @@ var clock = new Clock();
 export class Viewer {
   constructor(container) {
     this.container = container;
+    this.vrmlHouse=new WRLHouse();
     this.init();
   }
   init() {
@@ -105,14 +106,22 @@ export class Viewer {
     // mesh.rotation.x = - Math.PI / 2;
     mesh.receiveShadow = true;
     this.scene.add(mesh);
+
+    let ground2=new Mesh(new PlaneBufferGeometry(10, PLANE_HEIGHT),ROAD_MATIAL);
+    ground2.position.set(PLANE_WIDTH/2+6,0,-StairwayHeihgt);
+    this.scene.add(ground2);
+
   }
   initObjects() {
-    const car = new Car();
-    car.init(this.scene);
-    this.car = car;
+    // const car = new Car();
+    // car.init(this.scene);
+    // this.car = car;
 
-    const house = new HouseModel(this);
-    house.init()
+    // const house = new HouseModel(this);
+    // house.init()
+    let stairway= new Stairway();
+    stairway.intance.position.set(PLANE_WIDTH/2,RIVER_WIDTH/2+1,-StairwayHeihgt)
+    this.scene.add(stairway.intance);
 
   }
   initRoad() {
@@ -137,11 +146,20 @@ export class Viewer {
     }
   }
   initHouses(){
-    let myHouse=new House(new Vector3(3,3,6));
-    const intance=myHouse.intance;
-    intance.position.set(-PLANE_WIDTH / 2+9,-PLANE_HEIGHT / 4-20,4/2+0.1)
+    // let myHouse=new House(new Vector3(3,3,6));
+    // const intance=myHouse.intance;
+    // intance.position.set(-PLANE_WIDTH / 2+9,-PLANE_HEIGHT / 4-20,4/2+0.1)
 
-    this.scene.add(intance);
+    // this.scene.add(intance);
+    // this.scene.add();
+    this.vrmlHouse.init().then(()=>{
+      this.vrmlHouse.intance.position.set(-PLANE_WIDTH / 2+8,-PLANE_HEIGHT / 4-20,4/2+0.1)
+      this.scene.add(this.vrmlHouse.intance);
+      this.scene.background = new Color(0xeeeeee);
+    })
+
+
+
   }
   initBridge(){
     let bridge=new Bridge();

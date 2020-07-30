@@ -18,7 +18,7 @@ export function getRoadGeo(squareWithHole) {
   return geometry;
 }
 
-const ROAD_MATIAL=new MeshBasicMaterial({color:0x66676B});
+export const ROAD_MATIAL=new MeshBasicMaterial({color:0x66676B});
 
 class Road{
   constructor(sp,ep,width){
