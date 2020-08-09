@@ -1,13 +1,13 @@
 import { Mesh, MeshLambertMaterial, Shape } from "three";
 import { ExtrudeGeometry } from "three/build/three.module";
-import { StairwayHeihgt } from "./enums";
+import { StairwayHeight } from "./enums";
 
 export class Stairway {
   constructor(){
     this.init();
   }
   init() {
-    const height =StairwayHeihgt;
+    const height =StairwayHeight;
     const width = 6;
     const count = 5;
     const width2 =1

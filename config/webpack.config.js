@@ -95,6 +95,6 @@ module.exports = {
     path: path.resolve(__dirname, "../dist"),
   },
   devServer: {
-    port: 3333,
+    port: 4000,
   }
 }

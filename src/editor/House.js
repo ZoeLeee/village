@@ -2,7 +2,7 @@ import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLo
 import { CubeTextureLoader, BoxGeometry, Mesh, TextureLoader } from 'three';
 import { DRACOLoader } from '../../node_modules/three/examples/jsm/loaders/DRACOLoader.js';
 import { MeshBasicMaterial } from 'three';
-import { vrmlloader } from './loaders';
+import { vrmlloader, objLoader } from './loaders';
 
 export class HouseModel {
   constructor(viewer) {
@@ -84,11 +84,27 @@ export class WRLHouse {
     return new Promise(res => {
       vrmlloader.load('http://cdn2.dodream.top/house.wrl?key=joelee', (object) => {
         this.intance = object.children[0];
-        this.intance.scale.set(0.5,0.5,0.5)
+        this.intance.scale.set(0.5, 0.5, 0.5)
         this.intance.rotation.x = Math.PI / 2;
-        this.intance.children=this.intance.children.slice(1);
+        this.intance.children = this.intance.children.slice(1);
         res(true);
       });
+    })
+  }
+}
+
+export class ObjHouse {
+  constructor() {
+
+  }
+  init() {
+    return new Promise(res=>{
+      objLoader.load("http://cdn2.dodream.top/247_House%2015_obj.obj?key=joelee", (o) => {
+        this.intance = o;
+        o.scale.set(0.01,0.01,0.01);
+        o.rotation.x=Math.PI/2;
+        res(o);
+      })
     })
   }
 }

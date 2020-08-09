@@ -1,19 +1,21 @@
-import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer } from "three";
+import { AnimationMixer, AxesHelper, Clock, Color, DirectionalLight, Fog, Group, HemisphereLight, Mesh, MeshLambertMaterial, PlaneBufferGeometry, RepeatWrapping, Scene, sRGBEncoding, TextureLoader, Vector2, WebGLRenderer, Vector3, BufferGeometry } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls';
-import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, ROAD_WIDTH, StairwayHeihgt } from "../editor/enums";
-import { RoadFactroy, ROAD_MATIAL } from "../editor/road.js";
+import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, ROAD_WIDTH, StairwayHeight } from "../editor/enums";
+import { RoadFactroy } from "../editor/road.js";
 import { Bridge } from './../editor/bridge';
-import { WRLHouse } from './../editor/House';
+import { WRLHouse, ObjHouse } from './../editor/House';
 import { Stairway } from './../editor/stairway';
 import { Camera } from "./camera.js";
+import { ROAD_MATIAL } from "../editor/materials";
+import { BuildVillage } from "../editor/buildVillage";
 
-var clock = new Clock();
+let clock = new Clock();
 
 export class Viewer {
   constructor(container) {
     this.container = container;
-    this.vrmlHouse=new WRLHouse();
+    this.vrmlHouse = new WRLHouse();
     this.init();
   }
   init() {
@@ -29,6 +31,8 @@ export class Viewer {
     this.initRoad();
     this.initBridge();
     this.initHouses()
+    this.tool=new BuildVillage(this);
+    this.tool.init();
 
     this.stats = new Stats();
     this.container.appendChild(this.stats.dom);
@@ -38,7 +42,7 @@ export class Viewer {
     this.render();
   }
   initHelper() {
-    var axesHelper = new AxesHelper(5);
+    let axesHelper = new AxesHelper(5);
     this.scene.add(axesHelper);
   }
   initScene() {
@@ -48,7 +52,7 @@ export class Viewer {
     this.scene.fog = new Fog(0xeeeeee, 100, 1000);
   }
   initLight() {
-    var light = new DirectionalLight(0xdfebff, 1);
+    let light = new DirectionalLight(0xdfebff, 1);
     light.position.set(50, 200, 100);
     light.position.multiplyScalar(1.3);
 
@@ -57,7 +61,7 @@ export class Viewer {
     light.shadow.mapSize.width = 1024;
     light.shadow.mapSize.height = 1024;
 
-    var d = 300;
+    let d = 300;
 
     light.shadow.camera.left = - d;
     light.shadow.camera.right = d;
@@ -67,6 +71,7 @@ export class Viewer {
     light.shadow.camera.far = 1000;
 
     this.scene.add(light);
+
   }
   initRender() {
     let renderer = new WebGLRenderer({ antialias: true });
@@ -91,26 +96,38 @@ export class Viewer {
     this.mixer = mixer;
   }
   initPlane() {
-    var loader = new TextureLoader();
+    let loader = new TextureLoader();
     let url = require('../assets/grasslight-big.jpg').default;
-    var groundTexture = loader.load(url);
+    let groundTexture = loader.load(url);
     groundTexture.wrapS = groundTexture.wrapT = RepeatWrapping;
     groundTexture.repeat.set(25, 25);
     groundTexture.anisotropy = 16;
     groundTexture.encoding = sRGBEncoding;
 
-    var groundMaterial = new MeshLambertMaterial({ map: groundTexture });
+    //主地板
+    let groundMaterial = new MeshLambertMaterial({ map: groundTexture });
 
-    var mesh = new Mesh(new PlaneBufferGeometry(PLANE_WIDTH, PLANE_HEIGHT), groundMaterial);
+    let mesh = new Mesh(new PlaneBufferGeometry(PLANE_WIDTH, PLANE_HEIGHT), groundMaterial);
     mesh.position.y = 0;
     // mesh.rotation.x = - Math.PI / 2;
     mesh.receiveShadow = true;
     this.scene.add(mesh);
 
-    let ground2=new Mesh(new PlaneBufferGeometry(10, PLANE_HEIGHT),ROAD_MATIAL);
-    ground2.position.set(PLANE_WIDTH/2+6,0,-StairwayHeihgt);
+    //主地板樯
+    let wallGeo = new BufferGeometry().setFromPoints([
+      new Vector3(PLANE_WIDTH / 2, -PLANE_HEIGHT / 2, 0),
+      new Vector3(PLANE_WIDTH / 2, -PLANE_HEIGHT / 2, -StairwayHeight),
+      new Vector3(PLANE_WIDTH / 2, PLANE_HEIGHT / 2, -StairwayHeight),
+      new Vector3(PLANE_WIDTH / 2, PLANE_HEIGHT / 2, -StairwayHeight),
+      new Vector3(PLANE_WIDTH / 2, PLANE_HEIGHT / 2, 0),
+      new Vector3(PLANE_WIDTH / 2, -PLANE_HEIGHT / 2, 0),
+    ]);
+    let m = new Mesh(wallGeo, ROAD_MATIAL)
+    this.scene.add(m);
+    //河边地板
+    let ground2 = new Mesh(new PlaneBufferGeometry(10, PLANE_HEIGHT), groundMaterial);
+    ground2.position.set(PLANE_WIDTH / 2 +5, 0, -StairwayHeight);
     this.scene.add(ground2);
-
   }
   initObjects() {
     // const car = new Car();
@@ -119,24 +136,24 @@ export class Viewer {
 
     // const house = new HouseModel(this);
     // house.init()
-    let stairway= new Stairway();
-    stairway.intance.position.set(PLANE_WIDTH/2,RIVER_WIDTH/2+1,-StairwayHeihgt)
+    let stairway = new Stairway();
+    stairway.intance.position.set(PLANE_WIDTH / 2, RIVER_WIDTH / 2 + 1, -StairwayHeight)
     this.scene.add(stairway.intance);
 
   }
   initRoad() {
     const ptss = [
-      [new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH+4, -PLANE_HEIGHT / 2), new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH+4, PLANE_HEIGHT / 2)],
+      [new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH + 4, -PLANE_HEIGHT / 2), new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH + 4, PLANE_HEIGHT / 2)],
       [new Vector2(PLANE_WIDTH / 2, 0), new Vector2(0, 0), 2],
-      [new Vector2(PLANE_WIDTH / 4, PLANE_HEIGHT / 4+5), new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4), ROAD_WIDTH/2], //终点学校
-      [new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4+2), new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 4+2), ROAD_WIDTH/2],
-      [ new Vector2(0, PLANE_HEIGHT / 2), new Vector2(0, -PLANE_HEIGHT / 2), 2],
-      [ new Vector2(-PLANE_WIDTH / 2, PLANE_HEIGHT / 2-2), new Vector2(PLANE_WIDTH / 2+RIVER_WIDTH, PLANE_HEIGHT / 2-2), ROAD_WIDTH/2],
-      [ new Vector2(0, -PLANE_HEIGHT / 2+10), new Vector2(-PLANE_WIDTH / 2+5,-PLANE_HEIGHT / 2+10), ROAD_WIDTH/2],
-      [ new Vector2(-PLANE_WIDTH / 2+5, -PLANE_HEIGHT / 2+8), new Vector2(-PLANE_WIDTH / 2+5,PLANE_HEIGHT / 2), ROAD_WIDTH/2],
-      [ new Vector2(-PLANE_WIDTH / 4, -PLANE_HEIGHT / 2), new Vector2(-PLANE_WIDTH / 4,-PLANE_HEIGHT / 4), ROAD_WIDTH/2],
-      [ new Vector2(PLANE_WIDTH / 2-2, -PLANE_HEIGHT / 4), new Vector2(PLANE_WIDTH / 2-2,3*PLANE_HEIGHT / 8), ROAD_WIDTH/2],
-      [ new Vector2(PLANE_WIDTH / 2-2, PLANE_HEIGHT / 4), new Vector2(-PLANE_WIDTH/4,PLANE_HEIGHT / 4), ROAD_WIDTH/2],
+      [new Vector2(PLANE_WIDTH / 4, PLANE_HEIGHT / 4 + 5), new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4), ROAD_WIDTH / 2], //终点学校
+      [new Vector2(PLANE_WIDTH / 4, -PLANE_HEIGHT / 4 + 2), new Vector2(-PLANE_WIDTH / 2 + 5, -PLANE_HEIGHT / 4 + 2), ROAD_WIDTH / 2],
+      [new Vector2(0, PLANE_HEIGHT / 2), new Vector2(0, -PLANE_HEIGHT / 2), 2],
+      [new Vector2(-PLANE_WIDTH / 2, PLANE_HEIGHT / 2 - 2), new Vector2(PLANE_WIDTH / 2 + RIVER_WIDTH, PLANE_HEIGHT / 2 - 2), ROAD_WIDTH / 2],
+      [new Vector2(0, -PLANE_HEIGHT / 2 + 10), new Vector2(-PLANE_WIDTH / 2 + 5, -PLANE_HEIGHT / 2 + 10), ROAD_WIDTH / 2],
+      [new Vector2(-PLANE_WIDTH / 2 + 5, -PLANE_HEIGHT / 2 + 8), new Vector2(-PLANE_WIDTH / 2 + 5, PLANE_HEIGHT / 2), ROAD_WIDTH / 2],
+      [new Vector2(-PLANE_WIDTH / 4, -PLANE_HEIGHT / 2), new Vector2(-PLANE_WIDTH / 4, -PLANE_HEIGHT / 4), ROAD_WIDTH / 2],
+      [new Vector2(PLANE_WIDTH / 2 - 2, -PLANE_HEIGHT / 4), new Vector2(PLANE_WIDTH / 2 - 2, 3 * PLANE_HEIGHT / 8), ROAD_WIDTH / 2],
+      [new Vector2(PLANE_WIDTH / 2 - 2, PLANE_HEIGHT / 4), new Vector2(-PLANE_WIDTH / 4, PLANE_HEIGHT / 4), ROAD_WIDTH / 2],
     ]
 
     for (let pts of ptss) {
@@ -145,31 +162,41 @@ export class Viewer {
       this.roadGroup.add(road.intance);
     }
   }
-  initHouses(){
+  initHouses() {
     // let myHouse=new House(new Vector3(3,3,6));
     // const intance=myHouse.intance;
     // intance.position.set(-PLANE_WIDTH / 2+9,-PLANE_HEIGHT / 4-20,4/2+0.1)
 
     // this.scene.add(intance);
-    // this.scene.add();
-    this.vrmlHouse.init().then(()=>{
-      this.vrmlHouse.intance.position.set(-PLANE_WIDTH / 2+8,-PLANE_HEIGHT / 4-20,4/2+0.1)
-      this.scene.add(this.vrmlHouse.intance);
-      this.scene.background = new Color(0xeeeeee);
+
+    let objHouse = new ObjHouse();
+    objHouse.init().then(o => {
+      o.position.set(-PLANE_WIDTH / 2 + 10, -PLANE_HEIGHT / 4 - 20, 4 / 2 + 0.1);
+      this.scene.add(o);
+
+      let o2 = o.clone();
+      o2.position.set(-PLANE_WIDTH / 2 + 10, -PLANE_HEIGHT / 4 - 25, 4 / 2 + 0.1);
+      this.scene.add(o2);
     })
+
+    // this.vrmlHouse.init().then(()=>{
+    //   this.vrmlHouse.intance.position.set(-PLANE_WIDTH / 2+8,-PLANE_HEIGHT / 4-20,4/2+0.1);
+    //   this.scene.add(this.vrmlHouse.intance);
+    //   this.scene.background = new Color(0xeeeeee);
+    // })
 
 
 
   }
-  initBridge(){
-    let bridge=new Bridge();
-    bridge.intance.position.set(PLANE_WIDTH/2,2,0.1)
+  initBridge() {
+    let bridge = new Bridge();
+    bridge.intance.position.set(PLANE_WIDTH / 2, 2, 0.1)
     this.scene.add(bridge.intance);
   }
   render() {
     requestAnimationFrame(() => this.render());
     if (this.mixer) {
-      var delta = clock.getDelta();
+      let delta = clock.getDelta();
       this.mixer.update(delta);
     }
     let time = - performance.now() / 1000;
@@ -182,7 +209,6 @@ export class Viewer {
           carIntance.position.setY(currentZ - 0.1);
       }
     }
-
     this.controls.update();
     this.stats.update();
     this.renderer.render(this.scene, this.camera.intance);

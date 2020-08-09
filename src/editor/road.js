@@ -1,8 +1,9 @@
 import { extrudePolygon } from 'geometry-extrude';
 import * as THREE from 'three';
-import { Vector2, Shape, Mesh, ShapeBufferGeometry } from 'three';
+import { Vector2, Shape, Mesh, ShapeBufferGeometry, Line,  BufferGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
 import { ROAD_WIDTH } from './enums';
+import { linebaseMat } from './materials';
 
 export function getRoadGeo(squareWithHole) {
   console.log('squareWithHole: ', squareWithHole);
@@ -39,8 +40,12 @@ class Road{
       this.endPoint.clone().add(dir2),
       this.endPoint.clone().add(dir)
     ];
+
+    let line=new Line(new BufferGeometry().setFromPoints( [this.startPoint,this.endPoint] ),linebaseMat);
+    line.position.setZ(0.01)
     this._shape=new Shape(pts);
     this.intance= new Mesh(new ShapeBufferGeometry(this._shape),ROAD_MATIAL);
+    this.intance.add(line);
   }
 }
 

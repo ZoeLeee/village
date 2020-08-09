@@ -5,4 +5,4 @@ export const RIVER_WIDTH=20;
 
 export const OUTWALL_URL="http://cdn2.dodream.top/outwall.jpg";
 
-export const StairwayHeihgt=6;
+export const StairwayHeight=6;

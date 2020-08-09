@@ -7,7 +7,7 @@ export class Bridge {
     this.init();
   }
   init() {
-    const Height = 6;
+    const Height = 4;
 
     let group = new Group();
     let shape = new Shape([
