@@ -2,7 +2,8 @@ import { Dyke } from "./Dyke";
 import { PLANE_HEIGHT, PLANE_WIDTH, RIVER_WIDTH, StairwayHeight as StairwayHeight } from './enums';
 import { WaterObject } from './water';
 import { Vector3 } from "three";
-import {  objLoader, textureLoader } from './loaders';
+import { objLoader, textureLoader } from './loaders';
+import { Roadster } from './../objects/car';
 
 export class BuildVillage {
   constructor(view) {
@@ -16,6 +17,7 @@ export class BuildVillage {
     this._initRiver();
     this._initDyke();
     this._initObjcts();
+    this._initCars();
   }
   _initGround() {
 
@@ -38,13 +40,28 @@ export class BuildVillage {
 
   }
   _initDyke() {
-    let dyke1 = Dyke.GetDyke(PLANE_HEIGHT / 2 - 4);
-    dyke1.intance.position.set(PLANE_WIDTH / 2 + RIVER_WIDTH - 6, -4, -StairwayHeight);
+    let dyke1 = Dyke.GetDyke(PLANE_HEIGHT / 2 - 6);
+    dyke1.intance.position.set(PLANE_WIDTH / 2 + RIVER_WIDTH - 6, -5, -StairwayHeight);
     this.viewer.scene.add(dyke1.intance);
 
-    let dyke2 = Dyke.GetDyke(PLANE_HEIGHT / 2 - 4);
-    dyke2.intance.position.set(PLANE_WIDTH / 2 + RIVER_WIDTH - 6, PLANE_HEIGHT / 2, -StairwayHeight);
+    let dyke2 = Dyke.GetDyke(PLANE_HEIGHT / 2 - 10);
+    dyke2.intance.position.set(PLANE_WIDTH / 2 + RIVER_WIDTH - 6, PLANE_HEIGHT / 2 - 5, -StairwayHeight);
     this.viewer.scene.add(dyke2.intance);
+  }
+  _initCars() {
+    let pts = [
+      new Vector3(PLANE_WIDTH / 2 + RIVER_WIDTH + 4+1, -PLANE_HEIGHT / 2+1, 0.1),
+      new Vector3(PLANE_WIDTH / 2 + RIVER_WIDTH + 4+1, 1, 0.1),
+      new Vector3(-1, 1, 0.1),
+      new Vector3(-1, -PLANE_HEIGHT / 2+10+1, 0.1),
+      new Vector3(-PLANE_WIDTH / 2+5+1, -PLANE_HEIGHT / 2+10+1, 0.1),
+      new Vector3(-PLANE_WIDTH / 2+5+1, -PLANE_HEIGHT / 2+25, 0.1),
+    ];
+    const car = new Roadster();
+    car.init(pts).then(object => {
+      this.viewer.scene.add(object);
+      this.car = car;
+    })
   }
   _initObjcts() {
 
@@ -61,14 +78,18 @@ export class BuildVillage {
         object.position.set(-PLANE_WIDTH / 2 + 2, -PLANE_HEIGHT / 2, 0)
         this.viewer.scene.add(object);
 
-        const count =20;
-        let dist = (PLANE_HEIGHT-5) / (count - 1);
+        const count = 20;
+        let dist = (PLANE_HEIGHT - 5) / (count - 1);
 
-        for (let i = 1; i <= (count-1); i++) {
+        for (let i = 1; i <= (count - 1); i++) {
           let o = object.clone();
-          o.position.setY(object.position.y + (i*dist));
+          o.position.setY(object.position.y + (i * dist));
           this.viewer.scene.add(o);
         }
       })
+  }
+  update() {
+    if (this.car)
+      this.car.update();
   }
 }

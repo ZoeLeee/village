@@ -1,4 +1,5 @@
-import { Shape, MeshLambertMaterial, Mesh, ExtrudeBufferGeometry, } from "three";
+import { Shape, MeshPhongMaterial, Mesh, ExtrudeBufferGeometry } from "three";
+import { textureLoader } from "./loaders";
 
 export class Dyke {
   constructor(height) {
@@ -32,7 +33,9 @@ export class Dyke {
     };
 
     var geometry = new ExtrudeBufferGeometry(contour, extrudeSettings);
-    var material = new MeshLambertMaterial({ color: 0x00ff00 });
+    const texture= textureLoader.load("http://cdn2.dodream.top/caodi.jpg?key=joelee");
+
+    var material = new MeshPhongMaterial({ map:texture });
     let mesh = this.intance = new Mesh(geometry, material);
     mesh.rotation.x=Math.PI/2;
   }

@@ -1,19 +1,18 @@
 import * as THREE from 'three';
 import { dracoLoader, gtlfLoader } from "../editor/loaders";
+import { AbtractCar } from './../editor/cars/abstractCar';
 
-export class Car {
-  constructor() {
-
-  }
-  init(scene) {
+export class Roadster extends AbtractCar {
+  init(path) {
+    super.init(path);
     let wheels = [];
     this.wheels = wheels;
 
-    dracoLoader.setDecoderPath('https://threejs.org/examples/js/libs/draco/gltf/');
+    dracoLoader.setDecoderPath('http://qf0bzib4s.hn-bkt.clouddn.com/');
 
     gtlfLoader.setDRACOLoader(dracoLoader);
     var bodyMaterial = new THREE.MeshPhysicalMaterial({
-       metalness: 0.6, roughness: 0.4, clearcoat: 0.05, clearcoatRoughness: 0.05
+      metalness: 0.6, roughness: 0.4, clearcoat: 0.05, clearcoatRoughness: 0.05
     });
 
     var detailsMaterial = new THREE.MeshStandardMaterial({
@@ -24,45 +23,41 @@ export class Car {
       color: 0xffffff, metalness: 0, roughness: 0.1, transparency: 0.9, transparent: true
     });
 
-    gtlfLoader.load(' http://cdn2.dodream.top/ferrari.glb?key=joelee',  (gltf) =>{
+    return new Promise(res => {
+      gtlfLoader.load(' http://cdn2.dodream.top/ferrari.glb?key=joelee', (gltf) => {
 
-      var carModel = gltf.scene.children[0];
+        var carModel = gltf.scene.children[0];
 
-      this.intance=carModel;
+        this.intance = carModel;
 
-      carModel.position.set(100/2+10+5, 0, 0);
-      carModel.rotation.x=Math.PI/2;
-      carModel.getObjectByName('body').material = bodyMaterial;
+        if (path.length > 1) {
+          carModel.position.copy(path[0]);
+          this.dir = path[1].clone().sub(path[0]).normalize();
+        }
 
-      carModel.getObjectByName('rim_fl').material = detailsMaterial;
-      carModel.getObjectByName('rim_fr').material = detailsMaterial;
-      carModel.getObjectByName('rim_rr').material = detailsMaterial;
-      carModel.getObjectByName('rim_rl').material = detailsMaterial;
-      carModel.getObjectByName('trim').material = detailsMaterial;
+        carModel.rotation.x = Math.PI / 2;
 
-      carModel.getObjectByName('glass').material = glassMaterial;
+        carModel.getObjectByName('body').material = bodyMaterial;
 
-      wheels.push(
-        carModel.getObjectByName('wheel_fl'),
-        carModel.getObjectByName('wheel_fr'),
-        carModel.getObjectByName('wheel_rl'),
-        carModel.getObjectByName('wheel_rr')
-      );
+        carModel.getObjectByName('rim_fl').material = detailsMaterial;
+        carModel.getObjectByName('rim_fr').material = detailsMaterial;
+        carModel.getObjectByName('rim_rr').material = detailsMaterial;
+        carModel.getObjectByName('rim_rl').material = detailsMaterial;
+        carModel.getObjectByName('trim').material = detailsMaterial;
 
-      // shadow
-      // var mesh = new THREE.Mesh(
-      //   new THREE.PlaneBufferGeometry( 0.655 * 4, 1.3 * 4 ),
-      //   new THREE.MeshBasicMaterial( {
-      //     blending: THREE.MultiplyBlending, toneMapped: false, transparent: true
-      //   } )
-      // );
-      // mesh.rotation.x = - Math.PI / 2;
-      // mesh.renderOrder = 2;
-      // carModel.add( mesh );
+        carModel.getObjectByName('glass').material = glassMaterial;
 
-      scene.add(carModel);
+        wheels.push(
+          carModel.getObjectByName('wheel_fl'),
+          carModel.getObjectByName('wheel_fr'),
+          carModel.getObjectByName('wheel_rl'),
+          carModel.getObjectByName('wheel_rr')
+        );
 
-    });
-
+        this.intance = carModel;
+        carModel.updateMatrix();
+        res(carModel);
+      });
+    })
   }
 }

@@ -31,7 +31,7 @@ export class Viewer {
     this.initRoad();
     this.initBridge();
     this.initHouses()
-    this.tool=new BuildVillage(this);
+    this.tool = new BuildVillage(this);
     this.tool.init();
 
     this.stats = new Stats();
@@ -126,16 +126,12 @@ export class Viewer {
     this.scene.add(m);
     //河边地板
     let ground2 = new Mesh(new PlaneBufferGeometry(10, PLANE_HEIGHT), groundMaterial);
-    ground2.position.set(PLANE_WIDTH / 2 +5, 0, -StairwayHeight);
+    ground2.position.set(PLANE_WIDTH / 2 + 5, 0, -StairwayHeight);
     this.scene.add(ground2);
   }
   initObjects() {
-    // const car = new Car();
-    // car.init(this.scene);
-    // this.car = car;
 
-    // const house = new HouseModel(this);
-    // house.init()
+
     let stairway = new Stairway();
     stairway.intance.position.set(PLANE_WIDTH / 2, RIVER_WIDTH / 2 + 1, -StairwayHeight)
     this.scene.add(stairway.intance);
@@ -163,12 +159,6 @@ export class Viewer {
     }
   }
   initHouses() {
-    // let myHouse=new House(new Vector3(3,3,6));
-    // const intance=myHouse.intance;
-    // intance.position.set(-PLANE_WIDTH / 2+9,-PLANE_HEIGHT / 4-20,4/2+0.1)
-
-    // this.scene.add(intance);
-
     let objHouse = new ObjHouse();
     objHouse.init().then(o => {
       o.position.set(-PLANE_WIDTH / 2 + 10, -PLANE_HEIGHT / 4 - 20, 4 / 2 + 0.1);
@@ -178,15 +168,6 @@ export class Viewer {
       o2.position.set(-PLANE_WIDTH / 2 + 10, -PLANE_HEIGHT / 4 - 25, 4 / 2 + 0.1);
       this.scene.add(o2);
     })
-
-    // this.vrmlHouse.init().then(()=>{
-    //   this.vrmlHouse.intance.position.set(-PLANE_WIDTH / 2+8,-PLANE_HEIGHT / 4-20,4/2+0.1);
-    //   this.scene.add(this.vrmlHouse.intance);
-    //   this.scene.background = new Color(0xeeeeee);
-    // })
-
-
-
   }
   initBridge() {
     let bridge = new Bridge();
@@ -199,16 +180,7 @@ export class Viewer {
       let delta = clock.getDelta();
       this.mixer.update(delta);
     }
-    let time = - performance.now() / 1000;
-    if (this.car) {
-      this.car.wheels.forEach(w => w.rotation.x = time * Math.PI);
-      const carIntance = this.car.intance;
-      if (carIntance) {
-        let currentZ = carIntance.position.y;
-        if (currentZ > -50)
-          carIntance.position.setY(currentZ - 0.1);
-      }
-    }
+    this.tool.update();
     this.controls.update();
     this.stats.update();
     this.renderer.render(this.scene, this.camera.intance);
