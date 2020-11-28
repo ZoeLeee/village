@@ -7,7 +7,7 @@ export class AbtractCar {
     this.intance = null;
     this.dir = new Vector3(0, 1);
     this.index = 1;
-    this.speed=1;
+    this.speed=0.5;
   }
   init(path) {
     this.path = path;
