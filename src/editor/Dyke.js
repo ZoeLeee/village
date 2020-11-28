@@ -1,5 +1,6 @@
 import { Shape, MeshPhongMaterial, Mesh, ExtrudeBufferGeometry } from "three";
 import { textureLoader } from "./loaders";
+import { IMG_CDN_HOST } from "../utils/host";
 
 export class Dyke {
   constructor(height) {
@@ -12,7 +13,7 @@ export class Dyke {
   init() {
     const downWidth = 6;
     const upWidth = 3;
-    const height =14;
+    const height = 14;
 
     const t = (downWidth - upWidth) / 2;
 
@@ -33,10 +34,10 @@ export class Dyke {
     };
 
     var geometry = new ExtrudeBufferGeometry(contour, extrudeSettings);
-    const texture= textureLoader.load("http://cdn2.dodream.top/caodi.jpg?key=joelee");
+    const texture = textureLoader.load(IMG_CDN_HOST + "caodi.jpg");
 
-    var material = new MeshPhongMaterial({ map:texture });
+    var material = new MeshPhongMaterial({ map: texture });
     let mesh = this.intance = new Mesh(geometry, material);
-    mesh.rotation.x=Math.PI/2;
+    mesh.rotation.x = Math.PI / 2;
   }
 }

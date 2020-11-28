@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { dracoLoader, gtlfLoader } from "../editor/loaders";
 import { AbtractCar } from './../editor/cars/abstractCar';
+import { D3_CDN_HOST, CDNHOST } from '../utils/host';
 
 export class Roadster extends AbtractCar {
   init(path) {
@@ -8,7 +9,7 @@ export class Roadster extends AbtractCar {
     let wheels = [];
     this.wheels = wheels;
 
-    dracoLoader.setDecoderPath('http://qf0bzib4s.hn-bkt.clouddn.com/');
+    dracoLoader.setDecoderPath(CDNHOST + "script/");
 
     gtlfLoader.setDRACOLoader(dracoLoader);
     var bodyMaterial = new THREE.MeshPhysicalMaterial({
@@ -24,7 +25,7 @@ export class Roadster extends AbtractCar {
     });
 
     return new Promise(res => {
-      gtlfLoader.load(' http://cdn2.dodream.top/ferrari.glb?key=joelee', (gltf) => {
+      gtlfLoader.load(D3_CDN_HOST + 'ferrari.glb', (gltf) => {
 
         var carModel = gltf.scene.children[0];
 
@@ -58,6 +59,6 @@ export class Roadster extends AbtractCar {
         carModel.updateMatrix();
         res(carModel);
       });
-    })
+    });
   }
 }

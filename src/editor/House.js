@@ -3,27 +3,27 @@ import { CubeTextureLoader, BoxGeometry, Mesh, TextureLoader } from 'three';
 import { DRACOLoader } from '../../node_modules/three/examples/jsm/loaders/DRACOLoader.js';
 import { MeshBasicMaterial } from 'three';
 import { vrmlloader, objLoader } from './loaders';
+import { D3_CDN_HOST, IMG_CDN_HOST, CDNHOST } from '../utils/host.js';
 
 export class HouseModel {
   constructor(viewer) {
-    this.viewer = viewer
+    this.viewer = viewer;
   }
   init() {
     const view = this.viewer;
     var loader = new GLTFLoader();
-    var path = 'http://cdn.dodream.top/';
-    var format = '.jpg?key=joelee';
+    var path = IMG_CDN_HOST;
 
     var envMap = new CubeTextureLoader().load([
-      path + 'posx' + format, path + 'negx' + format,
-      path + 'posy' + format, path + 'negy' + format,
-      path + 'posz' + format, path + 'negz' + format
+      path + 'posx', path + 'negx',
+      path + 'posy', path + 'negy',
+      path + 'posz', path + 'negz'
     ]);
 
     var dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath("https://threejs.org/examples/js/libs/draco/gltf/");
+    dracoLoader.setDecoderPath(CDNHOST + "script/");
     loader.setDRACOLoader(dracoLoader);
-    loader.load('http://cdn.dodream.top/LittlestTokyo.glb?key=joelee', (gltf) => {
+    loader.load(D3_CDN_HOST + 'LittlestTokyo.glb', (gltf) => {
       var model = gltf.scene;
       model.castShadow = true;
       model.position.set(1, 0, 2);
@@ -36,7 +36,7 @@ export class HouseModel {
       });
 
       view.scene.add(model);
-      let m2 = model.clone()
+      let m2 = model.clone();
       m2.position.set(1, 8, 2);
       view.scene.add(m2);
 
@@ -69,7 +69,7 @@ export class House {
   }
   init() {
     let boxGeo = new BoxGeometry(this.size.x, this.size.y, this.size.z);
-    var texture = new TextureLoader().load('http://cdn2.dodream.top/outwall.jpg?key=joelee');
+    var texture = new TextureLoader().load(IMG_CDN_HOST + 'outwall.jpg');
     var material = new MeshBasicMaterial({ map: texture });
     let mesh = new Mesh(boxGeo, material);
 
@@ -82,14 +82,14 @@ export class WRLHouse {
   }
   init() {
     return new Promise(res => {
-      vrmlloader.load('http://cdn2.dodream.top/house.wrl?key=joelee', (object) => {
+      vrmlloader.load(CDNHOST + "script/" + 'house.wrl', (object) => {
         this.intance = object.children[0];
-        this.intance.scale.set(0.5, 0.5, 0.5)
+        this.intance.scale.set(0.5, 0.5, 0.5);
         this.intance.rotation.x = Math.PI / 2;
         this.intance.children = this.intance.children.slice(1);
         res(true);
       });
-    })
+    });
   }
 }
 
@@ -98,13 +98,13 @@ export class ObjHouse {
 
   }
   init() {
-    return new Promise(res=>{
-      objLoader.load("http://cdn2.dodream.top/247_House%2015_obj.obj?key=joelee", (o) => {
+    return new Promise(res => {
+      objLoader.load(D3_CDN_HOST + "247_House%2015_obj.obj", (o) => {
         this.intance = o;
-        o.scale.set(0.01,0.01,0.01);
-        o.rotation.x=Math.PI/2;
+        o.scale.set(0.01, 0.01, 0.01);
+        o.rotation.x = Math.PI / 2;
         res(o);
-      })
-    })
+      });
+    });
   }
 }
